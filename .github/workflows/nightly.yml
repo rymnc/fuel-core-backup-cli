@@ -1,0 +1,116 @@
+name: Nightly build
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  linux:
+    strategy:
+      matrix:
+        feature: [ "compress" ]
+        target:
+          - x86_64-unknown-linux-gnu
+          - aarch64-unknown-linux-gnu
+
+    name: Linux
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          target: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+      - name: cross build
+        run: |
+          cargo install cross --git https://github.com/cross-rs/cross.git --rev 1511a28
+          
+          cross build --release --target ${{ matrix.target }} --features ${{ matrix.feature }} 
+          mkdir release
+          cp target/${{ matrix.target }}/release/fuel-core-backup-cli release/
+          tar -czvf ${{ matrix.target }}-fuel-core-backup-cli.tar.gz release/
+
+      - name: Upload archive artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}-fuel-core-backup-cli-archive
+          path: ${{ matrix.target }}-fuel-core-backup-cli.tar.gz
+          retention-days: 2
+
+  macos:
+    name: MacOS
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        feature: [ "compress" ]
+        target:
+          - x86_64-apple-darwin
+          - aarch64-apple-darwin
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          target: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+      - name: cross build
+        run: |
+          cargo install cross --git https://github.com/cross-rs/cross.git --rev 1511a28
+          
+          cross build --release --target ${{ matrix.target }} --features ${{ matrix.feature }} 
+          mkdir release
+          cp target/${{ matrix.target }}/release/fuel-core-backup-cli release/
+          tar -czvf ${{ matrix.target }}-fuel-core-backup-cli.tar.gz release/
+
+      - name: Upload archive artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}-fuel-core-backup-cli-archive
+          path: ${{ matrix.target }}-fuel-core-backup-cli.tar.gz
+          retention-days: 2
+
+  prepare-prerelease:
+    name: Prepare pre-release
+    needs: [ linux, macos ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: master
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Delete tag
+        uses: dev-drprasad/delete-tag-and-release@v0.2.1
+        with:
+          delete_release: false
+          tag_name: nightly
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create prerelease
+        run: |
+          gh release create nightly --prerelease --target master \
+            --title 'Nightly build ("master" branch)' \
+            --generate-notes \
+            --draft=false \
+            *-archive/*.tar.gz \
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete artifacts
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          failOnError: false
+          name: |
+            *-archive
