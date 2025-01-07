@@ -11,29 +11,31 @@ cargo run -- --help
 ```
 
 
-## Backup (without compression)
+### Backup (without compression)
 
 ```bash
 cargo run --release -- backup --backup-from /path/to/db --backup-to /path/to/backup
 ```
 
-## Backup (with compression)
+### Backup (with compression)
 
 ```bash
 cargo run --release --features compress -- backup --backup-from /path/to/db --backup-to /path/to/backup.xz
 ```
 
-## Restore (without compression)
+### Restore (without compression)
 
 ```bash
 cargo run --release -- restore --restore-from /path/to/backup --restore-to /path/to/db
 ```
 
-## Restore (with compression)
+### Restore (with compression)
 
 ```bash
 cargo run --release --features compress -- restore --restore-from /path/to/backup.xz --restore-to /path/to/db
 ```
 
+## Precompiled Binaries
 
+Precompiled binaries are available in the [nightly releases](https://github.com/rymnc/fuel-core-backup-cli/releases/tag/nightly), please download the appropriate one for your system there.
 
