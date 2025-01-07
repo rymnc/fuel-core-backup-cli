@@ -93,7 +93,7 @@ jobs:
       - name: Delete tag
         uses: dev-drprasad/delete-tag-and-release@v0.2.1
         with:
-          delete_release: false
+          delete_release: true
           tag_name: nightly
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
