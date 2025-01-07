@@ -1,6 +1,9 @@
 mod backup;
 mod restore;
 
+#[cfg(feature = "compress")]
+mod compression;
+
 use clap::{Parser, Subcommand};
 
 #[derive(Debug, Subcommand)]
@@ -16,7 +19,7 @@ enum BackupCommand {
         restore_to: String,
         #[clap(long)]
         restore_from: String,
-    }
+    },
 }
 
 #[derive(Parser, Debug)]
@@ -30,10 +33,16 @@ fn main() {
     let args = Args::parse();
 
     match args.command {
-        BackupCommand::Backup { backup_from, backup_to } => {
+        BackupCommand::Backup {
+            backup_from,
+            backup_to,
+        } => {
             backup::backup(&backup_from, &backup_to).unwrap();
-        },
-        BackupCommand::Restore { restore_from, restore_to } => {
+        }
+        BackupCommand::Restore {
+            restore_from,
+            restore_to,
+        } => {
             restore::restore(&restore_to, &restore_from).unwrap();
         }
     }
