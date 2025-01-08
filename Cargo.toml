@@ -9,6 +9,7 @@ anyhow = "1.0.95"
 fuel-core = { git = "https://github.com/FuelLabs/fuel-core", branch = "fix/db-backup", features = ["rocksdb", "backup"] }
 tar = { version = "0.4.43", optional = true}
 xz2 = { version = "0.1.7", optional = true }
+tempfile = { version = "3.15.0", optional = true }
 
 [features]
-compress = ["dep:tar", "dep:xz2"]
+compress = ["dep:tar", "dep:xz2", "dep:tempfile"]
