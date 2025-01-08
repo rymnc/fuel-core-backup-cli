@@ -10,6 +10,7 @@ fuel-core = { git = "https://github.com/FuelLabs/fuel-core", branch = "fix/db-ba
 tar = { version = "0.4.43", optional = true}
 xz2 = { version = "0.1.7", optional = true }
 tempfile = { version = "3.15.0", optional = true }
+rayon = { version = "1.10.0", optional = true }
 
 [features]
-compress = ["dep:tar", "dep:xz2", "dep:tempfile"]
+compress = ["dep:tar", "dep:xz2", "dep:tempfile", "dep:rayon"]
