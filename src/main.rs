@@ -1,8 +1,8 @@
 mod backup;
 mod restore;
 
-#[cfg(feature = "compress")]
-mod compression;
+#[cfg(feature = "archive")]
+mod archive;
 
 use clap::{Parser, Subcommand};
 
